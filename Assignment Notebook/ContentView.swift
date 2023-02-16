@@ -8,14 +8,35 @@
 import SwiftUI
 
 struct ContentView: View {
+    @ObservedObject var assignmentList = AssignmentList()
+    @State private var showingAddItemView = false
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundColor(.accentColor)
-            Text("Hello, world!")
+        NavigationView {
+            List{
+                ForEach(assignmentList.items) { item in
+                    HStack{
+                        VStack(alignment: .leading){
+                            Text(item.course)
+                                .font(.headline)
+                            Text(item.description)
+                        }
+                        Spacer()
+                        Text(item.dueDate, style: .date)
+                    }
+                }
+                .onMove { indices, newOffset in
+                }
+                .onDelete { indexSet in
+                }
+            }
+            .sheet(isPresented: $showingAddItemView, content: {
+                AddAssignmentView(assignmentList: assignmentList)
+            })
+            .navigationBarItems(leading: EditButton(),
+                                trailing: Button(action: {
+                showingAddItemView = true}) {
+                    Image(systemName: "plus")})
         }
-        .padding()
     }
 }
 
@@ -23,4 +44,11 @@ struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
     }
+}
+
+struct AssignmentItem: Identifiable {
+    var  id = UUID()
+    var course: String
+    var description: String
+    var dueDate: Date
 }
